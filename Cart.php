@@ -19,11 +19,17 @@ if(isset($_SESSION['cart'])){
 }else{
     $cart = array();
 }
-
+$allgood = true;
 // формируем запрос на получение данных о добавленных товарах
 $ids = implode(',', array_keys($cart));
 $sql = "SELECT * FROM products WHERE id IN ($ids)";
+try{
 $result = mysqli_query($conn, $sql);
+}
+catch(Exception $Ex){
+    $allgood = false;
+}
+
 ?>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
@@ -207,8 +213,10 @@ $result = mysqli_query($conn, $sql);
     </div>
     </p>
 <?php 
+
 $total_price = 0;
-while($row = mysqli_fetch_assoc($result)){
+if($allgood){
+    while($row = mysqli_fetch_assoc($result)){
         $id = $row['id'];
         $name = $row['name'];
         $price = $row['price'];
@@ -216,9 +224,9 @@ while($row = mysqli_fetch_assoc($result)){
         $sum = $price * $quantity;
         $total_price += $sum;
         for($i = 0;$i<$quantity;$i++){
-    echo 
-    '<div class="container">
-        <div class="card">
+     echo 
+        '<div class="container">
+         <div class="card">
             <div class="card-wrapper">
                 <div class="row align-items-center">
                     <div class="col-12 col-md-4">
@@ -251,21 +259,21 @@ while($row = mysqli_fetch_assoc($result)){
                 </div>
             </div>
         </div>
-    </div>
-    </p>'
-    ;
+     </div>
+     </p>
+     '
+     ;
     }
-
-}
-?>
-<div class="container">
+    
+  }
+  echo '<div class="container">
         <div class="card">
             <div class="card-wrapper">
                 <div class="row align-items-center">
                     <div class="col-12 col-md">
                     <div class="card-box">
                     <div>
-                        <label for="total-price">Итоговая цена: <?php echo $total_price?> ₽</label>
+                        <label for="total-price">Итоговая цена: '.$total_price.' ₽</label>
                       </div>
                      <div class="row">
                         <div class="col-md">
@@ -281,14 +289,42 @@ while($row = mysqli_fetch_assoc($result)){
                         <label for="phone-number">Номер телефона:</label>
                         <input type="text" id="phone-number" name="phone-number" required class="form-input">
                       </div>
-                      <button type="submit" class="btn btn-primary display-4" onclick="SubmitOrder(<?php echo $total_price ?>)" href="Cart.php">Оплатить</button>
+                      <button type="submit" class="btn btn-primary display-4" onclick="SubmitOrder('.$total_price.')" href="Cart.php">Оплатить</button>
             </div>
                 </div>
             </div>
         </div>
     </div>
     
-    </p>
+    </p>';
+}
+else
+{
+    echo '<div class="container">
+        <div class="card">
+            <div class="card-wrapper">
+                <div class="row align-items-center">
+                    <div class="col-12 col-md">
+                        <div class="card-box">
+                            <div class="row">
+                                <div class="col-md">
+                                    <h6 class="card-title mbr-fonts-style display-5">
+                                        <strong>Корзина пуста! </strong>
+                                    </h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </p>'
+    ;
+}
+
+?>
+
 
 
 
